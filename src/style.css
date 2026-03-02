@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Atenea brand colors */
+:root {
+  --atenea-purple: #8B5CF6;
+  --atenea-dark: #0f0a1f;
+  --atenea-cyan: #06B6D4;
+  --atenea-pink: #EC4899;
+}
+
+/* Custom animations for subtitles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.subtitle-animation {
+  animation: fadeInUp 0.3s ease-out;
+}

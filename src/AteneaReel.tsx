@@ -7,7 +7,7 @@ interface SubtitleCue {
 }
 
 interface AteneaReelProps {
-  videoSrc: string;
+  videoFilename: string; // filename in public/ folder (e.g., "cm_abc123.mp4")
   title: string;
   subtitles?: SubtitleCue[];
 }
@@ -22,13 +22,16 @@ const COLORS = {
 };
 
 export const AteneaReel: React.FC<AteneaReelProps> = ({
-  videoSrc,
+  videoFilename,
   title,
   subtitles = [],
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
+  
+  // Load video from public/ folder using dynamic filename
+  const videoSrc = staticFile(videoFilename);
 
   // Find current subtitle
   const currentSubtitle = subtitles.find(

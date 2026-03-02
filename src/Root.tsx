@@ -21,7 +21,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={{
-          videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          videoFilename: 'sample.mp4', // Put a sample video in public/sample.mp4 for testing
           title: '¿Por qué tus tests siempre fallan? 🔥',
           subtitles: exampleSubtitles,
         }}
@@ -36,7 +36,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={{
-          videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          videoFilename: 'sample.mp4', // Put a sample video in public/sample.mp4 for testing
           title: 'Testing automatizado 101 💡',
           subtitles: exampleSubtitles,
         }}

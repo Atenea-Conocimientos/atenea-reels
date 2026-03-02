@@ -73,7 +73,7 @@ export const AteneaReel: React.FC<AteneaReelProps> = ({
           }}
         >
           <h1
-            className="text-4xl font-bold leading-tight"
+            className="text-5xl font-bold leading-tight"
             style={{
               color: COLORS.white,
               textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
@@ -123,7 +123,7 @@ export const AteneaReel: React.FC<AteneaReelProps> = ({
               }}
             >
               <p
-                className="text-2xl font-semibold"
+                className="text-3xl font-semibold"
                 style={{
                   color: COLORS.white,
                   textShadow: '1px 1px 3px rgba(0,0,0,0.9)',

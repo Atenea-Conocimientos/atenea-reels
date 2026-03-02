@@ -1,4 +1,4 @@
-import { AbsoluteFill, Video, useCurrentFrame, useVideoConfig, staticFile, Img } from 'remotion';
+import { AbsoluteFill, Video, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
 
 interface SubtitleCue {
   start: number; // in seconds
@@ -20,6 +20,9 @@ const COLORS = {
   pink: '#EC4899',
   white: '#FFFFFF',
 };
+
+// Font stack that guarantees emoji rendering in Chromium (Windows + cross-platform)
+const EMOJI_FONT = "'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif";
 
 export const AteneaReel: React.FC<AteneaReelProps> = ({
   videoFilename,
@@ -74,6 +77,7 @@ export const AteneaReel: React.FC<AteneaReelProps> = ({
             style={{
               color: COLORS.white,
               textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+              fontFamily: EMOJI_FONT,
             }}
           >
             {title}
@@ -123,6 +127,7 @@ export const AteneaReel: React.FC<AteneaReelProps> = ({
                 style={{
                   color: COLORS.white,
                   textShadow: '1px 1px 3px rgba(0,0,0,0.9)',
+                  fontFamily: EMOJI_FONT,
                 }}
               >
                 {currentSubtitle.text}

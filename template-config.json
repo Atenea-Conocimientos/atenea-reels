@@ -1,37 +1,40 @@
 {
-  "titleFontSize": 56,
+  "_note": "Layout config set by Juan Torres via Remotion Studio — 2026-03-03",
+
+  "titleFontSize": 62,
   "titleColor": "#FFFFFF",
   "titleBgColor": "rgba(0,0,0,0.70)",
-  "titlePaddingX": 16,
-  "titlePaddingY": 24,
-  "titleBorderRadius": 16,
+  "titlePaddingX": 49,
+  "titlePaddingY": 36,
+  "titleBorderRadius": 60,
 
-  "subtitleFontSize": 36,
+  "subtitleFontSize": 70,
   "subtitleColor": "#FFFFFF",
   "subtitleBgColor": "rgba(0,0,0,0.80)",
   "subtitleBorderRadius": 12,
 
-  "videoWidthPct": 95,
-  "videoMaxHeightPct": 60,
+  "videoWidthPct": 99,
+  "videoMaxHeightPct": 80,
   "videoBorderColor": "#8B5CF6",
-  "videoBorderWidth": 2,
-  "videoBorderRadius": 16,
+  "videoBorderWidth": 7,
+  "videoBorderRadius": 36,
   "videoGlowColor": "#8B5CF640",
 
   "bgBlurPx": 30,
-  "bgScaleX": 1.3,
+  "bgScaleX": 1,
   "bgOverlayOpacity": 0.5,
   "bgOverlayColor": "#0F0A1F",
 
   "brandText": "ateneaconocimientos.com",
   "brandColor": "#06B6D4",
-  "brandGlowOpacity": 0.5,
+  "brandGlowOpacity": 1,
   "brandLogoColor1": "#8B5CF6",
   "brandLogoColor2": "#06B6D4",
-  "brandFontSize": 22,
+  "brandFontSize": 48,
+  "brandLogoSize": 72,
 
-  "paddingTopPx": 64,
-  "paddingBottomPx": 64,
+  "paddingTopPx": 200,
+  "paddingBottomPx": 200,
   "paddingHorizPx": 32,
-  "subtitleAreaHeightPx": 96
+  "subtitleAreaHeightPx": 40
 }

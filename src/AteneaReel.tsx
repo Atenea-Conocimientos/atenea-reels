@@ -44,7 +44,8 @@ export const layoutSchema = z.object({
   brandGlowOpacity:     z.number().min(0).max(1).default(0.5),
   brandLogoColor1:      z.string().default('#8B5CF6'),
   brandLogoColor2:      z.string().default('#06B6D4'),
-  brandFontSize:        z.number().min(12).max(48).default(22),
+  brandFontSize:        z.number().min(12).max(72).default(22),
+  brandLogoSize:        z.number().min(20).max(120).default(40),  // px — width & height of the "A" circle
 
   // ── Vertical spacing ───────────────────────────────────────────────────────
   paddingTopPx:         z.number().min(0).max(200).default(64),
@@ -188,11 +189,12 @@ export const AteneaReel: React.FC<AteneaReelProps> = ({
         {/* ── Branding ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: '50%',
+            width: l.brandLogoSize, height: l.brandLogoSize, borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: `linear-gradient(135deg, ${l.brandLogoColor1}, ${l.brandLogoColor2})`,
+            flexShrink: 0,
           }}>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>A</span>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: Math.round(l.brandLogoSize * 0.45) }}>A</span>
           </div>
           <span style={{
             color: l.brandColor,

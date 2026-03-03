@@ -1,162 +1,209 @@
 import { AbsoluteFill, Video, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
+import { z } from 'zod';
 
+// ─── Subtitle cue (passed from worker, not editable in Studio) ──────────────
 interface SubtitleCue {
-  start: number; // in seconds
+  start: number; // seconds
   end: number;
   text: string;
 }
 
-interface AteneaReelProps {
-  videoFilename: string; // filename in public/ folder (e.g., "cm_abc123.mp4")
-  title: string;
-  subtitles?: SubtitleCue[];
-}
+// ─── Layout config schema (editable in Remotion Studio) ─────────────────────
+export const layoutSchema = z.object({
+  // ── Title ──────────────────────────────────────────────────────────────────
+  titleFontSize:        z.number().min(20).max(120).default(56),
+  titleColor:           z.string().default('#FFFFFF'),
+  titleBgColor:         z.string().default('rgba(0,0,0,0.70)'),
+  titlePaddingX:        z.number().min(0).max(100).default(16),   // px
+  titlePaddingY:        z.number().min(0).max(100).default(24),   // px
+  titleBorderRadius:    z.number().min(0).max(60).default(16),    // px
 
-// Atenea brand colors
-const COLORS = {
-  purple: '#8B5CF6',
-  darkPurple: '#0f0a1f',
-  cyan: '#06B6D4',
-  pink: '#EC4899',
-  white: '#FFFFFF',
-};
+  // ── Subtitles ──────────────────────────────────────────────────────────────
+  subtitleFontSize:     z.number().min(16).max(80).default(36),
+  subtitleColor:        z.string().default('#FFFFFF'),
+  subtitleBgColor:      z.string().default('rgba(0,0,0,0.80)'),
+  subtitleBorderRadius: z.number().min(0).max(40).default(12),
 
-// Font stack that guarantees emoji rendering in Chromium (Windows + cross-platform)
-const EMOJI_FONT = "'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif";
+  // ── Main video frame ───────────────────────────────────────────────────────
+  videoWidthPct:        z.number().min(50).max(100).default(95),  // % of container width
+  videoMaxHeightPct:    z.number().min(30).max(80).default(60),   // % of container height
+  videoBorderColor:     z.string().default('#8B5CF6'),
+  videoBorderWidth:     z.number().min(0).max(10).default(2),
+  videoBorderRadius:    z.number().min(0).max(40).default(16),
+  videoGlowColor:       z.string().default('#8B5CF640'),
 
+  // ── Background blur ────────────────────────────────────────────────────────
+  bgBlurPx:             z.number().min(0).max(80).default(30),
+  bgScaleX:             z.number().min(1).max(2).default(1.3),
+  bgOverlayOpacity:     z.number().min(0).max(1).default(0.5),
+  bgOverlayColor:       z.string().default('#0F0A1F'),
+
+  // ── Branding ───────────────────────────────────────────────────────────────
+  brandText:            z.string().default('ateneaconocimientos.com'),
+  brandColor:           z.string().default('#06B6D4'),
+  brandGlowOpacity:     z.number().min(0).max(1).default(0.5),
+  brandLogoColor1:      z.string().default('#8B5CF6'),
+  brandLogoColor2:      z.string().default('#06B6D4'),
+  brandFontSize:        z.number().min(12).max(48).default(22),
+
+  // ── Vertical spacing ───────────────────────────────────────────────────────
+  paddingTopPx:         z.number().min(0).max(200).default(64),
+  paddingBottomPx:      z.number().min(0).max(200).default(64),
+  paddingHorizPx:       z.number().min(0).max(120).default(32),
+  subtitleAreaHeightPx: z.number().min(40).max(200).default(96),
+});
+
+export type LayoutConfig = z.infer<typeof layoutSchema>;
+
+// ─── Full props schema (Studio renders these as controls) ────────────────────
+export const ateneaReelSchema = z.object({
+  videoFilename: z.string().default('sample.mp4'),
+  title:         z.string().default('¿Cómo pasé mi entrevista?'),
+  subtitles:     z.array(z.object({
+    start: z.number(),
+    end:   z.number(),
+    text:  z.string(),
+  })).default([
+    { start: 0, end: 3, text: 'Este es un subtítulo de ejemplo' },
+    { start: 3, end: 6, text: 'Aquí va otra línea de subtítulos' },
+  ]),
+  layout: layoutSchema,
+});
+
+export type AteneaReelProps = z.infer<typeof ateneaReelSchema>;
+
+// ─── Component ───────────────────────────────────────────────────────────────
 export const AteneaReel: React.FC<AteneaReelProps> = ({
   videoFilename,
   title,
   subtitles = [],
+  layout,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
-  
-  // Load video from public/ folder using dynamic filename
+  const l = layout; // shorthand
+
   const videoSrc = staticFile(videoFilename);
 
-  // Find current subtitle
   const currentSubtitle = subtitles.find(
     (sub) => currentTime >= sub.start && currentTime <= sub.end
   );
 
   return (
-    <AbsoluteFill className="bg-gradient-to-b from-[#1a0a2e] to-[#0f0a1f]">
-      {/* Blurred background video */}
-      <AbsoluteFill style={{ filter: 'blur(30px)', transform: 'scale(1.3)' }}>
-        <Video
-          src={videoSrc}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
+    <AbsoluteFill style={{ background: `linear-gradient(to bottom, #1a0a2e, ${l.bgOverlayColor})` }}>
+
+      {/* ── Blurred background ── */}
+      <AbsoluteFill style={{
+        filter: `blur(${l.bgBlurPx}px)`,
+        transform: `scale(${l.bgScaleX})`,
+      }}>
+        <Video src={videoSrc} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </AbsoluteFill>
 
-      {/* Dark overlay for better contrast */}
-      <AbsoluteFill
-        style={{
-          backgroundColor: 'rgba(15, 10, 31, 0.5)',
-        }}
-      />
+      {/* ── Dark overlay ── */}
+      <AbsoluteFill style={{ backgroundColor: `${l.bgOverlayColor}${Math.round(l.bgOverlayOpacity * 255).toString(16).padStart(2,'0')}` }} />
 
-      {/* Content container */}
-      <AbsoluteFill className="flex flex-col items-center justify-between py-16 px-8">
-        {/* Title section */}
-        <div
-          className="text-center px-4 py-6 rounded-2xl max-w-[90%]"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <h1
-            className="text-5xl font-bold leading-tight"
-            style={{
-              color: COLORS.white,
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-              fontFamily: EMOJI_FONT,
-            }}
-          >
+      {/* ── Main layout ── */}
+      <AbsoluteFill style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingTop:    l.paddingTopPx,
+        paddingBottom: l.paddingBottomPx,
+        paddingLeft:   l.paddingHorizPx,
+        paddingRight:  l.paddingHorizPx,
+      }}>
+
+        {/* ── Title ── */}
+        <div style={{
+          textAlign: 'center',
+          paddingLeft:  l.titlePaddingX,
+          paddingRight: l.titlePaddingX,
+          paddingTop:   l.titlePaddingY,
+          paddingBottom:l.titlePaddingY,
+          borderRadius: l.titleBorderRadius,
+          maxWidth: '90%',
+          backgroundColor: l.titleBgColor,
+          backdropFilter: 'blur(10px)',
+        }}>
+          <h1 style={{
+            color:      l.titleColor,
+            fontSize:   l.titleFontSize,
+            fontWeight: 700,
+            lineHeight: 1.2,
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+            fontFamily: "'Segoe UI', system-ui, sans-serif",
+            margin: 0,
+          }}>
             {title}
           </h1>
         </div>
 
-        {/* Main video */}
-        <div
-          className="relative rounded-2xl overflow-hidden shadow-2xl"
-          style={{
-            width: '95%',
-            maxHeight: '60%',
-            boxShadow: `0 0 40px ${COLORS.purple}40`,
-          }}
-        >
-          <Video
-            src={videoSrc}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-            }}
-          />
-          
-          {/* Neon border effect */}
-          <div
-            className="absolute inset-0 pointer-events-none rounded-2xl"
-            style={{
-              border: `2px solid ${COLORS.purple}`,
-              boxShadow: `inset 0 0 20px ${COLORS.purple}30`,
-            }}
-          />
+        {/* ── Main video frame ── */}
+        <div style={{
+          position: 'relative',
+          width:     `${l.videoWidthPct}%`,
+          maxHeight: `${l.videoMaxHeightPct}%`,
+          borderRadius: l.videoBorderRadius,
+          overflow: 'hidden',
+          boxShadow: `0 0 40px ${l.videoGlowColor}`,
+        }}>
+          <Video src={videoSrc} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          {/* Neon border */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            borderRadius: l.videoBorderRadius,
+            border: `${l.videoBorderWidth}px solid ${l.videoBorderColor}`,
+            boxShadow: `inset 0 0 20px ${l.videoGlowColor}`,
+          }} />
         </div>
 
-        {/* Subtitles section */}
-        <div className="h-24 flex items-center justify-center w-full">
+        {/* ── Subtitles ── */}
+        <div style={{ height: l.subtitleAreaHeightPx, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
           {currentSubtitle && (
-            <div
-              className="text-center px-6 py-3 rounded-xl max-w-[95%]"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                backdropFilter: 'blur(5px)',
-              }}
-            >
-              <p
-                className="text-3xl font-semibold"
-                style={{
-                  color: COLORS.white,
-                  textShadow: '1px 1px 3px rgba(0,0,0,0.9)',
-                  fontFamily: EMOJI_FONT,
-                }}
-              >
+            <div style={{
+              textAlign: 'center',
+              paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12,
+              borderRadius: l.subtitleBorderRadius,
+              maxWidth: '95%',
+              backgroundColor: l.subtitleBgColor,
+              backdropFilter: 'blur(5px)',
+            }}>
+              <p style={{
+                color: l.subtitleColor,
+                fontSize: l.subtitleFontSize,
+                fontWeight: 600,
+                textShadow: '1px 1px 3px rgba(0,0,0,0.9)',
+                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                margin: 0,
+              }}>
                 {currentSubtitle.text}
               </p>
             </div>
           )}
         </div>
 
-        {/* Branding */}
-        <div className="flex items-center gap-3">
-          {/* Logo placeholder - replace with actual logo */}
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.purple}, ${COLORS.cyan})`,
-            }}
-          >
-            <span className="text-white font-bold text-lg">A</span>
+        {/* ── Branding ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: `linear-gradient(135deg, ${l.brandLogoColor1}, ${l.brandLogoColor2})`,
+          }}>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>A</span>
           </div>
-          <span
-            className="text-xl font-medium"
-            style={{
-              color: COLORS.cyan,
-              textShadow: `0 0 10px ${COLORS.cyan}50`,
-            }}
-          >
-            ateneaconocimientos.com
+          <span style={{
+            color: l.brandColor,
+            fontSize: l.brandFontSize,
+            fontWeight: 500,
+            textShadow: `0 0 10px ${l.brandColor}${Math.round(l.brandGlowOpacity * 255).toString(16).padStart(2,'0')}`,
+          }}>
+            {l.brandText}
           </span>
         </div>
+
       </AbsoluteFill>
     </AbsoluteFill>
   );
